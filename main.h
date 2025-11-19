@@ -11,4 +11,10 @@ typedef struct {
   int status;
 } server_settings;
 
+#ifndef DISABLE_PRINT
+    #define PRINT(...) printf(__VA_ARGS__)
+#else
+    #define PRINT(...) {};
+#endif
+
 #endif

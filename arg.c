@@ -4,20 +4,20 @@
 #include <string.h>
 
 void print_usage() {
-  printf("%s:  usage:  %s [-t | -u] port \n", PROGRAMM_NAME, PROGRAMM_NAME);
+  PRINT("%s:  usage:  %s [-t | -u] port \n", PROGRAMM_NAME, PROGRAMM_NAME);
 }
 
 void print_description() {
-  printf("    Strarts server with endpoint /time, /shutdown etc at spesified "
-         "port \n");
+  PRINT("    Strarts server with endpoint /time, /shutdown etc at spesified "
+        "port \n");
 }
 
 void print_help() {
   print_usage();
   print_description();
-  printf("    Options: \n"
-         "       -t tcp\n"
-         "       -u udp\n");
+  PRINT("    Options: \n"
+        "       -t tcp\n"
+        "       -u udp\n");
 }
 
 int parce_protocol(server_settings *settings, char *protocol) {
@@ -51,21 +51,21 @@ int parce_settings(server_settings *settings, int argc, char **argv) {
   if (argc == 2) {
     if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
       print_help();
-      exit(0);
+      return 0;
     } else {
       print_usage();
-      exit(0);
+      return 0;
     }
   } else if (argc == 3) {
     if (!parce_protocol(settings, argv[1]) || !parce_port(settings, argv[2])) {
       print_usage();
-      exit(0);
+      return 0;
     } else {
       return 1;
     }
   } else {
     print_usage();
-    exit(0);
+    return 0;
   }
 
   // not use

@@ -6,5 +6,7 @@ int main(int argc, char** argv){
     server_settings settings;
     if(parce_settings(&settings, argc, argv)){
         printf("Settings ok\n");
+    }else{
+        return 1;
     }
 }

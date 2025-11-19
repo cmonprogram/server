@@ -1,12 +1,22 @@
 CC = gcc
 CFLAGS = -Wall
 TARGET = server
+TEST_TARGET = run_tests
 
-all : TARGET
+all : $(TARGET) $(TEST_TARGET)
+$(TEST_TARGET):  CFLAGS += -DDISABLE_PRINT 
 
 #link
-TARGET : main.o arg.o
+$(TARGET) : main.o arg.o
 	$(CC) $(CFLAGS) main.o arg.o -o $(TARGET)
+
+#link
+$(TEST_TARGET): test.o arg.o
+	$(CC) $(CFLAGS) tests.o arg.o -o $(TEST_TARGET)
+
+#not link
+test.o: 
+		$(CC) $(CFLAGS) -c tests.c  -o tests.o
 
 #not link
 main.o: 
@@ -18,4 +28,4 @@ arg.o: arg.c
 
 .PHONY: clean
 clean:
-	rm -f $(TARGET) *.o
+	rm -f $(TARGET)  $(TEST_TARGET) *.o
