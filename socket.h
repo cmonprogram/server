@@ -49,7 +49,7 @@ int stage_execute(server_params *server, server_settings *settings) {
       continue;
     }
     buffer[n_bytes] = '\0';
-    printf("[get] %s\n", buffer);
+    PRINT("[get] %s\n", buffer);
 
     if (strcmp(buffer, "exit\n") == 0) {
       EXECUTE_STAGE("server close", stage_close, server, settings);
