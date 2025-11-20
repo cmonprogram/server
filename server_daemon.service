@@ -1,0 +1,15 @@
+[Unit]
+Description=Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/local/bin/
+ExecStart=/usr/local/bin/server -u 8080
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=server
+
+[Install]
+WantedBy=multi-user.target
