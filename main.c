@@ -8,5 +8,5 @@ int main(int argc, char** argv){
         return 1;
     }
     
-    return server_run(&settings);
+     return server_run(&settings) ? 0 : 1;
 }

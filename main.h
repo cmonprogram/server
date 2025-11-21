@@ -20,6 +20,9 @@ typedef struct {
   char out_buffer[1000];
 } server_params;
 
+#define RESULT_SUCESS 1
+#define RESULT_FAIL 0
+
 #define KGRN "\x1B[32m"
 #define KRED "\x1B[31m"
 #define KNRM "\x1B[0m"
@@ -40,12 +43,13 @@ typedef struct {
   } else {                                                                     \
     PRINT("[%sfail%s] %s\n", KRED, KNRM, stage_name);                          \
     PRINT("[exit]\n");                                                         \
+    return RESULT_FAIL;                                                                \
   }
 
 #define RUN_TEST(test_name, test_func)                                         \
   {                                                                            \
     if (test_func()) {                                                         \
-      printf("[%spassed%s] %s\n", KGRN, KNRM, test_name);                       \
+      printf("[%spassed%s] %s\n", KGRN, KNRM, test_name);                      \
     } else {                                                                   \
       printf("[%sfailed%s] %s\n", KRED, KNRM, test_name);                      \
     }                                                                          \

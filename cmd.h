@@ -3,11 +3,11 @@
 #include "sys/time.h"
 #include <stdio.h>
 
-void cmd_exit(server_params *server, server_settings *settings) {
-  EXECUTE_STAGE("server close", stage_close, server, settings);
+int  cmd_exit(server_params *server, server_settings *settings) {
+    return stage_close(server, settings);
 }
 
-void cmd_time(server_params *server, server_settings *settings) {
+int cmd_time(server_params *server, server_settings *settings) {
       struct timeval tv;
       gettimeofday(&tv, NULL);
       long long milliseconds =
@@ -16,6 +16,7 @@ void cmd_time(server_params *server, server_settings *settings) {
       printf("[time] %s\n", server->out_buffer);
       sendto(server->sock_fd, (char *)server->out_buffer, out_buffer_len, 0,
              (struct sockaddr *)&server->client_addr, server->addr_len);
+     return RESULT_SUCESS;
 }
 
 void cmd_test_start() {}

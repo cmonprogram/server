@@ -11,7 +11,7 @@ int stage_init(server_params *server, server_settings *settings) {
   server->server_addr.sin_addr.s_addr = INADDR_ANY;
   server->server_addr.sin_port = htons(settings->port_no);
   server->addr_len = sizeof(server->client_addr);
-  return 1;
+  return RESULT_SUCESS;
 }
 
 int stage_create(server_params *server, server_settings *settings) {
@@ -19,7 +19,7 @@ int stage_create(server_params *server, server_settings *settings) {
     server->sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
     return server->sock_fd >= 0;
   }
-  return 0;
+  return RESULT_SUCESS;
 }
 
 int stage_bind(server_params *server, server_settings *settings) {
@@ -28,12 +28,12 @@ int stage_bind(server_params *server, server_settings *settings) {
     perror("[bind error]");
     return 0;
   }
-  return 1;
+  return RESULT_SUCESS;
 }
 
 int stage_close(server_params *server, server_settings *settings) {
   close(server->sock_fd);
-  return 1;
+  return RESULT_SUCESS;
 }
 
 int stage_execute(server_params *server, server_settings *settings) {
@@ -51,13 +51,12 @@ int stage_execute(server_params *server, server_settings *settings) {
     PRINT("[get] %s\n", server->in_buffer);
 
     if (strcmp(server->in_buffer, "exit") == 0) {
-      cmd_exit(server,settings);
-      return 1;
+      return cmd_exit(server,settings);
     } else if (strcmp(server->in_buffer, "time") == 0) {
       cmd_time(server,settings);
     }
   }
-  return 0;
+  return RESULT_SUCESS;
 }
 
 int server_run(server_settings* settings){
@@ -66,5 +65,5 @@ int server_run(server_settings* settings){
     EXECUTE_STAGE("create socket", stage_create, &server, settings);
     EXECUTE_STAGE("bind socket", stage_bind, &server, settings);
     EXECUTE_STAGE("finish server", stage_execute, &server, settings);
-    return 1;
+    return RESULT_SUCESS;
 }
