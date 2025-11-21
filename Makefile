@@ -3,17 +3,18 @@ CFLAGS = -Wall
 TARGET = server
 TEST_TARGET = run_tests
 DAEMON_NAME = server_daemon.service 
+OBJECTS = arg.o socket.o
 
 all : $(TARGET) $(TEST_TARGET)
 $(TEST_TARGET):  CFLAGS += -DDISABLE_PRINT 
 
 #link
-$(TARGET) : main.o arg.o
-	$(CC) $(CFLAGS) main.o arg.o -o $(TARGET)
+$(TARGET) : main.o $(OBJECTS)
+	$(CC) $(CFLAGS) main.o $(OBJECTS) -o $(TARGET)
 
 #link
-$(TEST_TARGET): test.o arg.o
-	$(CC) $(CFLAGS) tests.o arg.o -o $(TEST_TARGET)
+$(TEST_TARGET):  tests.o $(OBJECTS)
+	$(CC) $(CFLAGS)  tests.o  $(OBJECTS) -o $(TEST_TARGET)
 
 #not link
 test.o: 
@@ -26,6 +27,10 @@ main.o:
 #not link
 arg.o: arg.c 
 		$(CC) $(CFLAGS) -c arg.c -o arg.o
+
+#not link
+socket.o: socket.c 
+		$(CC) $(CFLAGS) -c socket.c -o socket.o
 
 install: all
 	cp  $(TARGET) /usr/local/bin

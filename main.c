@@ -1,6 +1,6 @@
 #include "main.h"
 #include "arg.h"
-#include "server.h"
+#include "socket.h"
 
 int main(int argc, char** argv){
     server_settings settings;

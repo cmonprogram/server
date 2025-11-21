@@ -1,12 +1,16 @@
 #include "arg.h"
 #include "main.h"
-#include "server.h"
+#include "socket.h"
 #include <assert.h>
 #include <stdio.h>
-
+#include <string.h>
+#include <unistd.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include <arpa/inet.h>
 
 int udp_load_test_run_server() {
   server_settings settings;
@@ -15,14 +19,63 @@ int udp_load_test_run_server() {
   return server_run(&settings);
 }
 
+/*
+void *PrintI(void *args) {
+  printf("th %d\n", *(int *)args);
+  pthread_exit(NULL);
+}
+
 int udp_load_test_run_client() {
+  pthread_t threads[10];
   for (int i = 0; i < 10; ++i) {
-    printf("%d\n", i);
+    pthread_create(&threads[i], NULL, PrintI, (void *)&i);
   }
   return 1;
 }
+*/
 
-  // lod test, output number of processed packages (with return) per 30s (run sequentially / parallel)
+// https://www.geeksforgeeks.org/computer-networks/udp-client-server-using-connect-c-implementation/
+int udp_load_test_run_client() {
+  char buffer[100];
+  char message_buffer[100];
+  char *message = "Hello Server";
+  int sockfd, n;
+  struct sockaddr_in servaddr;
+
+
+    // clear servaddr
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    servaddr.sin_port = htons(8080);
+    servaddr.sin_family = AF_INET;
+
+    // create datagram socket
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    // connect to server
+    if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+      printf("\n Error : Connect Failed \n");
+      exit(0);
+    }
+
+for (int i = 0; i < 1000000; ++i) {
+    sprintf(message_buffer, "Hello web server %d", i++);
+    sendto(sockfd, message_buffer, 1000, 0, (struct sockaddr *)NULL,  sizeof(servaddr));
+    // sleep(1);
+  }
+  // waiting for response
+  // recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)NULL, NULL);
+  // puts(buffer);
+
+  // close the descriptor
+  close(sockfd);
+
+  return 0;
+}
+
+// lod test, output number of processed packages (with return) per 30s (run
+// sequentially / parallel)
+// package nuber and test results gets from server-side 
 int start_udp_load_test() {
   pid_t pid;
   switch (pid = fork()) {
