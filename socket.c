@@ -6,6 +6,10 @@
 #include "cmd.h"
 
 int stage_init(server_params *server, server_settings *settings) {
+    if(settings->protocol == TCP){
+            PRINT("TCP not supported yet\n");
+            return RESULT_FAIL;
+    }
   memset(server, 0, sizeof(*server));
   server->server_addr.sin_family = AF_INET;
   server->server_addr.sin_addr.s_addr = INADDR_ANY;
