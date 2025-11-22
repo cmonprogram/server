@@ -1,3 +1,4 @@
+### Build commands
 | Command | Description |
 | :---         |     :---:      | 
 | `make clean && make server && sudo ./server` | build |
@@ -6,7 +7,12 @@
 | `sudo make install` | install (run daemon udp at 8080) |
 | `sudo make remove` | remove |
 
-***
+### Server commands
+| Command | Description |
+| :---         |     :---:      | 
+| `time` | prints timestamp |
+| `exit` | close server |
+
 # TODO
 ```
 1. simple socket server on C
