@@ -15,7 +15,7 @@
 
 # TODO
 ```
-1. simple socket server on C
+1. [ok] simple socket server on C
             1. [ok] console input
             2. [ok] udp server start
             3. [ok] tcp server start
