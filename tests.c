@@ -2,13 +2,13 @@
 #include "main.h"
 #include "socket.h"
 #include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include <arpa/inet.h>
 
@@ -36,36 +36,39 @@ int udp_load_test_run_client() {
 
 // https://www.geeksforgeeks.org/computer-networks/udp-client-server-using-connect-c-implementation/
 int udp_load_test_run_client() {
-  char buffer[100];
-  char message_buffer[100];
+  char in_buffer[100];
+  char out_buffer[100];
   char *message = "Hello Server";
   int sockfd, n;
   struct sockaddr_in servaddr;
 
+  // clear servaddr
+  memset(&servaddr, 0, sizeof(servaddr));
+  servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  servaddr.sin_port = htons(8080);
+  servaddr.sin_family = AF_INET;
 
-    // clear servaddr
-    memset(&servaddr, 0, sizeof(servaddr));
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    servaddr.sin_port = htons(8080);
-    servaddr.sin_family = AF_INET;
+  // create datagram socket
+  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    // create datagram socket
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  // connect to server
+  if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    printf("\n Error : Connect Failed \n");
+    exit(0);
+  }
 
-    // connect to server
-    if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-      printf("\n Error : Connect Failed \n");
-      exit(0);
-    }
-
-for (int i = 0; i < 1000000; ++i) {
-    sprintf(message_buffer, "Hello web server %d", i++);
-    sendto(sockfd, message_buffer, 1000, 0, (struct sockaddr *)NULL,  sizeof(servaddr));
+  for (int i = 0; i < 1000000; ++i) {
+    sprintf(out_buffer, "Hello web server %d", i);
+    sendto(sockfd, out_buffer, sizeof(out_buffer), 0, (struct sockaddr *)NULL,
+           sizeof(servaddr));
     // sleep(1);
   }
+  sprintf(out_buffer, "exit");
+  sendto(sockfd, out_buffer, sizeof(out_buffer), 0, (struct sockaddr *)NULL,
+         sizeof(servaddr));
   // waiting for response
-  // recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)NULL, NULL);
-  // puts(buffer);
+  // recvfrom(sockfd, in_buffer, sizeof(in_buffer), 0, (struct sockaddr*)NULL, NULL);
+  // puts(in_buffer);
 
   // close the descriptor
   close(sockfd);
@@ -75,7 +78,7 @@ for (int i = 0; i < 1000000; ++i) {
 
 // lod test, output number of processed packages (with return) per 30s (run
 // sequentially / parallel)
-// package nuber and test results gets from server-side 
+// package nuber and test results gets from server-side
 int start_udp_load_test() {
   pid_t pid;
   switch (pid = fork()) {
