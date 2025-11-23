@@ -7,6 +7,5 @@ int main(int argc, char** argv){
     if(!parce_settings(&settings, argc, argv)){
         return 1;
     }
-    
-     return server_run(&settings) ? 0 : 1;
+     return server_run(&settings) != RESULT_FAIL ? 0 : 1;
 }
