@@ -3,7 +3,7 @@ CFLAGS = -Wall -g #-fsanitize=address,undefined  #-fsanitize=leak,thread  -Wextr
 TARGET = server
 TEST_TARGET = run_tests
 DAEMON_NAME = server_daemon.service 
-OBJECTS = arg.o socket.o
+OBJECTS = arg.o socket.o instance.o cmd.o
 
 all : $(TARGET) $(TEST_TARGET)
 $(TEST_TARGET):  CFLAGS += -DDISABLE_PRINT 
@@ -31,6 +31,14 @@ arg.o: arg.c
 #not link
 socket.o: socket.c 
 		$(CC) $(CFLAGS) -c socket.c -o socket.o
+
+#not link
+instance.o: instance.c 
+		$(CC) $(CFLAGS) -c instance.c -o instance.o
+
+#not link
+cmd.o: cmd.c 
+		$(CC) $(CFLAGS) -c cmd.c -o cmd.o
 
 install: all
 	cp  $(TARGET) /usr/local/bin
