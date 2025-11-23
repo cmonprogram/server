@@ -1,6 +1,7 @@
-#include "arg.h"
 #include <stdio.h>
 #include <string.h>
+#include "main.h"
+#include "arg.h"
 
 void print_usage() {
   PRINT("%s:  usage:  %s [-t | -u] port \n", PROGRAMM_NAME, PROGRAMM_NAME);
@@ -69,4 +70,18 @@ int parce_settings(server_settings *settings, int argc, char **argv) {
 
   // not use
   return 0;
+}
+
+// should be thread-safe
+int parce_args(char *args, int length, char **args_array, int args_array_lengh) {
+  if (memchr(args, '\0', length) == NULL)
+    return RESULT_FAIL;
+  int i = 0;
+  char *arg = strtok(args, " ");
+  while (arg != NULL && i < args_array_lengh) {
+    arg = strtok(NULL, " ");
+    strcpy(arg, args_array[i]);
+    ++i;
+  }
+  return i >= args_array_lengh ? RESULT_SUCESS : RESULT_FAIL;
 }
