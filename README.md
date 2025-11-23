@@ -18,7 +18,7 @@
 1. simple socket server on C
             1. [ok] console input
             2. [ok] udp server start
-            3. tcp server start
+            3. [ok] tcp server start
 2. [ok] daemon
 3. buffer work (epoll?)
 4. load test (to see improvement after epoll)

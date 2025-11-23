@@ -18,18 +18,20 @@ typedef struct {
 typedef struct {
   int sock_fd;
   struct sockaddr_in server_addr;
-
   int server_in_test;
   long long server_test_start_milliseconds;
   long long server_test_end_milliseconds;
-
 } server_params;
 
 typedef struct {
   char in_buffer[1000];
+  int in_buffer_len;
   char out_buffer[1000];
+  int out_buffer_len;
+  int client_fd;
   struct sockaddr_in client_addr;
   socklen_t addr_len;
+
 } request_instance;
 
 #define KGRN "\x1B[32m"

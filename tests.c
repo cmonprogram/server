@@ -63,9 +63,19 @@ int udp_load_test_run_client() {
            sizeof(servaddr));
     // sleep(1);
   }
+
+  /*
+  for (int i = 0; i < 3; ++i) {
+  printf("exit send %d\n", i);
+  sleep(1);
+  }
+  */
+
   sprintf(out_buffer, "exit");
   sendto(sockfd, out_buffer, sizeof(out_buffer), 0, (struct sockaddr *)NULL,
          sizeof(servaddr));
+  
+
   // waiting for response
   // recvfrom(sockfd, in_buffer, sizeof(in_buffer), 0, (struct sockaddr*)NULL, NULL);
   // puts(in_buffer);

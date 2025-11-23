@@ -6,11 +6,13 @@
 #include <unistd.h>
 
 RESULT stage_init(server_params *server, server_settings *settings) {
+  memset(server, 0, sizeof(*server));
+  /*
   if (settings->protocol == TCP) {
     PRINT_ERROR("TCP not supported yet");
     return RESULT_EXIT;
   }
-  memset(server, 0, sizeof(*server));
+  */
   server->server_addr.sin_family = AF_INET;
   server->server_addr.sin_addr.s_addr = INADDR_ANY;
   server->server_addr.sin_port = htons(settings->port_no);
@@ -18,11 +20,15 @@ RESULT stage_init(server_params *server, server_settings *settings) {
 }
 
 RESULT stage_create(server_params *server, server_settings *settings) {
-  if (settings->protocol == UDP) {
+  switch (settings->protocol) {
+  case UDP:
     server->sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
-    return server->sock_fd >= 0;
+    break;
+  case TCP:
+    server->sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    break;
   }
-  return RESULT_SUCESS;
+  return server->sock_fd >= 0 ? RESULT_SUCESS : RESULT_FAIL;
 }
 
 RESULT stage_bind(server_params *server, server_settings *settings) {
@@ -41,6 +47,13 @@ RESULT stage_close(server_params *server, server_settings *settings) {
 
 RESULT stage_execute(server_params *server, server_settings *settings) {
   PRINT("[server started] prort:%d\n", settings->port_no);
+  if(settings->protocol == TCP){
+       if ((listen(server->sock_fd, 5)) != 0) { 
+        printf("Listen failed...\n"); 
+        return RESULT_FAIL;
+    } 
+  }
+  
   while (1) {
     RESULT res = start_instance(server, settings);
     switch (res) {

@@ -1,24 +1,26 @@
 #ifndef INSTANCE_H
 #define INSTANCE_H
+#include "cmd.h"
+#include "main.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include "cmd.h"
-#include "main.h"
 
 int start_instance(server_params *server, server_settings *settings) {
   request_instance request;
   request.addr_len = sizeof(request.client_addr);
-  int n_bytes =
-      recvfrom(server->sock_fd, (char *)request.in_buffer,
-               sizeof(request.in_buffer) - 1, MSG_WAITALL, // MSG_ZEROCOPY
-               (struct sockaddr *)&request.client_addr, &request.addr_len);
-  if (n_bytes < 0) {
-    PRINT_ERROR("recvfrom failed");
-    return RESULT_FAIL;
+  if (settings->protocol == TCP) {
+      if ((request.client_fd = accept(server->sock_fd, (struct sockaddr *)&request.client_addr, (socklen_t*)&request.addr_len)) < 0) {
+        perror("accept failed");
+        return RESULT_FAIL;
+    }
   }
-  request.in_buffer[n_bytes] = '\0';
- PRINT("[get] %s\n", request.in_buffer);
+
+  if(get_msg(server,settings,&request)){
+        PRINT("[get] %s\n", request.in_buffer);
+  }
+  
+
   if (strcmp(request.in_buffer, "exit") == 0) {
     return cmd_exit(server, settings, &request);
   } else if (strcmp(request.in_buffer, "time") == 0) {
