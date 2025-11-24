@@ -13,6 +13,26 @@
 | `time` | prints timestamp |
 | `exit` | close server |
 
+### Output example
+```
+$ ./server -t 8080
+[ok] init server
+[ok] create socket
+[ok] bind socket
+[server started] prort:8080
+[get] time
+[time] 1764016240066
+[get] test
+[err] wrong command
+[get] exit
+[exit]
+```
+```
+$ echo -n "time" | nc -w 0 -t 127.0.0.1 8080
+$ echo -n "test" | nc -w 0 -t 127.0.0.1 8080
+$ echo -n "exit" | nc -w 0 -t 127.0.0.1 8080
+```
+
 # TODO
 ```
 1. [ok] simple socket server on C
