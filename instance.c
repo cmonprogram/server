@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-int start_instance(server_params *server, server_settings *settings) {
+RESULT start_instance(server_params *server, server_settings *settings) {
   request_instance request;
   request.addr_len = sizeof(request.client_addr);
   if (settings->protocol == TCP) {
