@@ -1,10 +1,11 @@
 #ifndef INSTANCE_H
 #define INSTANCE_H
-#include "cmd.h"
-#include "main.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "main.h"
+#include "cmd.h"
+#include "socket.h"
 
 int start_instance(server_params *server, server_settings *settings) {
   request_instance request;

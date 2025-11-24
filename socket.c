@@ -47,13 +47,13 @@ RESULT stage_close(server_params *server, server_settings *settings) {
 
 RESULT stage_execute(server_params *server, server_settings *settings) {
   PRINT("[server started] prort:%d\n", settings->port_no);
-  if(settings->protocol == TCP){
-       if ((listen(server->sock_fd, 5)) != 0) { 
-        printf("Listen failed...\n"); 
-        return RESULT_FAIL;
-    } 
+  if (settings->protocol == TCP) {
+    if ((listen(server->sock_fd, 5)) != 0) {
+      printf("Listen failed...\n");
+      return RESULT_FAIL;
+    }
   }
-  
+
   while (1) {
     RESULT res = start_instance(server, settings);
     switch (res) {
@@ -76,4 +76,47 @@ RESULT server_run(server_settings *settings) {
   EXECUTE_STAGE("bind socket", stage_bind, &server, settings);
   EXECUTE_STAGE("finish server", stage_execute, &server, settings);
   return RESULT_SUCESS;
+}
+
+RESULT get_msg(server_params *server, server_settings *settings,
+               request_instance *request) {
+  if (settings->protocol == UDP) {
+    request->in_buffer_len =
+        recvfrom(server->sock_fd, (char *)request->in_buffer,
+                 sizeof(request->in_buffer) - 1, MSG_WAITALL, // MSG_ZEROCOPY
+                 (struct sockaddr *)&request->client_addr, &request->addr_len);
+    if (request->in_buffer_len < 0) {
+      PRINT_ERROR("recvfrom failed");
+      return RESULT_FAIL;
+    }
+    request->in_buffer[request->in_buffer_len++] = '\0';
+    return RESULT_SUCESS;
+  } else if (settings->protocol == TCP) {
+    request->in_buffer_len = read(request->client_fd, request->in_buffer,
+                                  sizeof(request->in_buffer) - 1);
+    if (request->in_buffer_len < 0) {
+      perror("read failed");
+      return RESULT_FAIL;
+    }
+    request->in_buffer[request->in_buffer_len++] = '\0';
+    return RESULT_SUCESS;
+  }
+  return RESULT_FAIL;
+}
+
+RESULT send_msg(server_params *server, server_settings *settings,
+                request_instance *request) {
+  if (settings->protocol == UDP) {
+    if (sendto(server->sock_fd, (char *)request->out_buffer,
+               request->out_buffer_len, 0,
+               (struct sockaddr *)&request->client_addr, request->addr_len)) {
+      return RESULT_SUCESS;
+    }
+  } else {
+    if (send(request->client_fd, request->out_buffer, request->out_buffer_len,
+             0)) {
+      return RESULT_SUCESS;
+    }
+  }
+  return RESULT_FAIL;
 }

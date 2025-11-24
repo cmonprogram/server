@@ -1,51 +1,8 @@
-#include "main.h"
-#include "socket.h"
 #include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>
-
-RESULT get_msg(server_params *server, server_settings *settings,
-               request_instance *request) {
-  if (settings->protocol == UDP) {
-    request->in_buffer_len =
-        recvfrom(server->sock_fd, (char *)request->in_buffer,
-                 sizeof(request->in_buffer) - 1, MSG_WAITALL, // MSG_ZEROCOPY
-                 (struct sockaddr *)&request->client_addr, &request->addr_len);
-    if (request->in_buffer_len < 0) {
-      PRINT_ERROR("recvfrom failed");
-      return RESULT_FAIL;
-    }
-    request->in_buffer[request->in_buffer_len++] = '\0';
-    return RESULT_SUCESS;
-  } else if (settings->protocol == TCP) {
-    request->in_buffer_len = read(request->client_fd, request->in_buffer,
-                                  sizeof(request->in_buffer) - 1);
-    if (request->in_buffer_len < 0) {
-      perror("read failed");
-      return RESULT_FAIL;
-    }
-    request->in_buffer[request->in_buffer_len++] = '\0';
-    return RESULT_SUCESS;
-  }
-  return RESULT_FAIL;
-}
-
-RESULT send_msg(server_params *server, server_settings *settings,
-                request_instance *request) {
-  if (settings->protocol == UDP) {
-    if (sendto(server->sock_fd, (char *)request->out_buffer,
-               request->out_buffer_len, 0,
-               (struct sockaddr *)&request->client_addr, request->addr_len)) {
-      return RESULT_SUCESS;
-    }
-  } else {
-    if (send(request->client_fd, request->out_buffer, request->out_buffer_len,
-             0)) {
-      return RESULT_SUCESS;
-    }
-  }
-  return RESULT_FAIL;
-}
+#include "main.h"
+#include "socket.h"
 
 RESULT cmd_exit(server_params *server, server_settings *settings,
                 request_instance *request) {
