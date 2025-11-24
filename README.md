@@ -25,8 +25,8 @@
             2. [ok] udp server start
             3. [ok] tcp server start
 2. [ok] daemon
-3. buffer work (epoll?)
-4. [ok] load test (to see improvement after epoll)
+3. [ok] load test (to see improvement after epoll)
+4. buffer work (epoll?)
 5. run on rockchip
 6. try core-level acceleration (dpdk/AF_XDP/eBPF)
 ```
