@@ -6,6 +6,8 @@
 
 
 #define PROGRAMM_NAME "server"
+#define MAX_ARGS 10
+#define MSG_BUFFER_SIZE 1000
 
 typedef enum { TCP, UDP } PROTOCOL;
 typedef enum { RESULT_FAIL, RESULT_SUCESS, RESULT_EXIT } RESULT;
@@ -24,10 +26,11 @@ typedef struct {
 } server_params;
 
 typedef struct {
-  char in_buffer[1000];
+  char in_buffer[MSG_BUFFER_SIZE];
   int in_buffer_len;
-  char out_buffer[1000];
+  char out_buffer[MSG_BUFFER_SIZE];
   int out_buffer_len;
+  char* args[MAX_ARGS];
   int client_fd;
   struct sockaddr_in client_addr;
   socklen_t addr_len;
@@ -50,7 +53,7 @@ typedef struct {
 #define PRINT_NORMAL(status, data) PRINT("[%s] %s\n", status, data)
 #define PRINT_GREEN(status, data)PRINT("[%s%s%s] %s\n", KGRN, status, KNRM, data)
 #define PRINT_RED(status, data) PRINT("[%s%s%s] %s\n", KRED, status, KNRM, data)
-#define PRINT_ERROR(data)  PRINT_RED("error", data)
+#define PRINT_ERROR(data)  PRINT_RED("err", data)
 
 
 #define EXECUTE_STAGE(stage_name, stage_func, ...)                             \

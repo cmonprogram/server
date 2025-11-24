@@ -9,4 +9,5 @@ void cmd_test_start(server_params *server, server_settings *settings,
                     request_instance *request);
 void cmd_test_end(server_params *server, server_settings *settings,
                   request_instance *request);
+
 #endif

@@ -78,6 +78,7 @@ RESULT server_run(server_settings *settings) {
   return RESULT_SUCESS;
 }
 
+//need msg limit error
 RESULT get_msg(server_params *server, server_settings *settings,
                request_instance *request) {
   if (settings->protocol == UDP) {
@@ -86,7 +87,7 @@ RESULT get_msg(server_params *server, server_settings *settings,
                  sizeof(request->in_buffer) - 1, MSG_WAITALL, // MSG_ZEROCOPY
                  (struct sockaddr *)&request->client_addr, &request->addr_len);
     if (request->in_buffer_len < 0) {
-      PRINT_ERROR("recvfrom failed");
+      PRINT_ERROR("[recvfrom failed]");
       return RESULT_FAIL;
     }
     request->in_buffer[request->in_buffer_len++] = '\0';
@@ -95,7 +96,7 @@ RESULT get_msg(server_params *server, server_settings *settings,
     request->in_buffer_len = read(request->client_fd, request->in_buffer,
                                   sizeof(request->in_buffer) - 1);
     if (request->in_buffer_len < 0) {
-      perror("read failed");
+      perror("[read failed]");
       return RESULT_FAIL;
     }
     request->in_buffer[request->in_buffer_len++] = '\0';

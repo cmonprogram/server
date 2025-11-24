@@ -74,14 +74,17 @@ int parce_settings(server_settings *settings, int argc, char **argv) {
 
 // should be thread-safe
 int parce_args(char *args, int length, char **args_array, int args_array_lengh) {
-  if (memchr(args, '\0', length) == NULL)
+  if (args_array_lengh < 1 || memchr(args, '\0', length) == NULL)
     return RESULT_FAIL;
   int i = 0;
   char *arg = strtok(args, " ");
+  if(arg){
+     args_array[i] = arg;
+  }
   while (arg != NULL && i < args_array_lengh) {
     arg = strtok(NULL, " ");
-    strcpy(arg, args_array[i]);
-    ++i;
+     ++i;
+    args_array[i] = arg;
   }
-  return i >= args_array_lengh ? RESULT_SUCESS : RESULT_FAIL;
+  return arg == NULL ? i : RESULT_FAIL;
 }
