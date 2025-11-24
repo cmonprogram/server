@@ -7,7 +7,7 @@
 #include "cmd.h"
 #include "socket.h"
 
-int start_instance(server_params *server, server_settings *settings) {
+RESULT start_instance(server_params *server, server_settings *settings) {
   request_instance request;
   request.addr_len = sizeof(request.client_addr);
   if (settings->protocol == TCP) {
@@ -33,5 +33,4 @@ int start_instance(server_params *server, server_settings *settings) {
   }
   return RESULT_SUCESS;
 }
-
 #endif
