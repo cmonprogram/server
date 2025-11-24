@@ -46,7 +46,8 @@ RESULT stage_close(server_params *server, server_settings *settings) {
 }
 
 RESULT stage_execute(server_params *server, server_settings *settings) {
-  PRINT("[%s server started] prort:%d\n", settings->protocol == TCP ? "TCP" : "UDP"  ,settings->port_no);
+  PRINT("[%s server started] prort:%d\n",
+        settings->protocol == TCP ? "TCP" : "UDP", settings->port_no);
   if (settings->protocol == TCP) {
     if ((listen(server->sock_fd, 5)) != 0) {
       printf("Listen failed...\n");
@@ -78,7 +79,7 @@ RESULT server_run(server_settings *settings) {
   return RESULT_SUCESS;
 }
 
-//need msg limit error
+// need msg limit error
 RESULT get_msg(server_params *server, server_settings *settings,
                request_instance *request) {
   if (settings->protocol == UDP) {
@@ -113,7 +114,7 @@ RESULT send_msg(server_params *server, server_settings *settings,
                (struct sockaddr *)&request->client_addr, request->addr_len)) {
       return RESULT_SUCESS;
     }
-  } else {
+  } else if (settings->protocol == TCP) {
     if (send(request->client_fd, request->out_buffer, request->out_buffer_len,
              0)) {
       return RESULT_SUCESS;

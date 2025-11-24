@@ -10,7 +10,8 @@
 #define CLOSE_TCP                                                              \
   if (settings->protocol == TCP)                                               \
     close(request.client_fd);
-//#define return if (settings->protocol == TCP) close(request.client_fd); return
+// #define return if (settings->protocol == TCP) close(request.client_fd);
+// return
 
 RESULT test_section(server_params *server, server_settings *settings,
                     request_instance *request) {
@@ -74,6 +75,7 @@ RESULT start_instance(server_params *server, server_settings *settings) {
              accept(server->sock_fd, (struct sockaddr *)&request.client_addr,
                     (socklen_t *)&request.addr_len)) < 0) {
       perror("accept failed");
+      CLOSE_TCP;
       return RESULT_FAIL;
     }
   }
@@ -89,8 +91,9 @@ RESULT start_instance(server_params *server, server_settings *settings) {
       return RESULT_FAIL;
     }
 
+    RESULT res = command_section(server, settings, &request);
     CLOSE_TCP;
-    return command_section(server, settings, &request);
+    return res;
   }
   CLOSE_TCP;
   return RESULT_FAIL;
