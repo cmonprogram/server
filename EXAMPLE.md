@@ -36,3 +36,15 @@ $ ./server -t 8080
 ```
 $ echo -n "test_start" | nc -w 0 -t 127.0.0.1 8080 ; for i in {1..1000}; do echo -n "test_package" | nc -w 0 -t 127.0.0.1 8080; done
 ```
+
+### Test with daemon
+```
+sudo make install
+```
+```
+echo -n "test_start" | nc -w 0 -t 127.0.0.1 8080 ; for i in {1..500}; do echo -n "test_package" | nc -w 0 -t 127.0.0.1 8080; done; echo -n "test_end" | nc -w 1 -t 127.0.0.1 8080 ; 
+[test_end] 500 packages by 1537ms
+```
+```
+sudo make remove
+```
