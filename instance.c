@@ -1,5 +1,3 @@
-#ifndef INSTANCE_H
-#define INSTANCE_H
 #include "cmd.h"
 #include "main.h"
 #include <stdio.h>
@@ -32,5 +30,3 @@ RESULT start_instance(server_params *server, server_settings *settings) {
   }
   return RESULT_SUCESS;
 }
-
-#endif
