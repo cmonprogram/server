@@ -46,7 +46,7 @@ RESULT stage_close(server_params *server, server_settings *settings) {
 }
 
 RESULT stage_execute(server_params *server, server_settings *settings) {
-  PRINT("[server started] prort:%d\n", settings->port_no);
+  PRINT("[%s server started] prort:%d\n", settings->protocol == TCP ? "TCP" : "UDP"  ,settings->port_no);
   if (settings->protocol == TCP) {
     if ((listen(server->sock_fd, 5)) != 0) {
       printf("Listen failed...\n");
