@@ -21,6 +21,8 @@ typedef struct {
   int sock_fd;
   struct sockaddr_in server_addr;
   int server_in_test;
+  int server_test_packages_number;
+  int server_test_packages_number_end;
   long long server_test_start_milliseconds;
   long long server_test_end_milliseconds;
 } server_params;
