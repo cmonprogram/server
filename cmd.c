@@ -51,7 +51,7 @@ RESULT cmd_test_end(server_params *server, server_settings *settings,
   server->server_in_test = 0;
   request->out_buffer_len =
       sprintf(request->out_buffer, "[test_end] %d packages by %dms\n",
-              server->server_test_packages_number_end,
+              server->server_test_packages_number,
               (int)(server->server_test_end_milliseconds -
                     server->server_test_start_milliseconds));
   PRINT("%s", request->out_buffer);

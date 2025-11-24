@@ -15,8 +15,13 @@
 
 RESULT test_section(server_params *server, server_settings *settings,
                     request_instance *request) {
-  if (server->server_in_test && server->server_test_packages_number <
-                                    server->server_test_packages_number_end) {
+  //need better alternative for end
+  if (server->server_in_test && strcmp(request->in_buffer, "test_end") == 0) {
+    cmd_test_end(server, settings, request);
+    return RESULT_SUCESS;
+  } else if (server->server_in_test &&
+             server->server_test_packages_number <
+                 server->server_test_packages_number_end) {
     PRINT("[get %d/%d] %s\n", server->server_test_packages_number + 1,
           server->server_test_packages_number_end, request->in_buffer);
     if (++server->server_test_packages_number ==
@@ -59,12 +64,14 @@ RESULT command_section(server_params *server, server_settings *settings,
     return cmd_time(server, settings, request);
   } else if (strcmp(request->args[0], "test_start") == 0) {
     return cmd_test_start(server, settings, request);
-  } else if (strcmp(request->args[0], "test_end") == 0) {
-    return cmd_test_end(server, settings, request);
   } else {
     PRINT_ERROR("wrong command");
     return RESULT_FAIL;
   }
+  // moved to tets section
+  /*else if (strcmp(request->args[0], "test_end") == 0) {
+    return cmd_test_end(server, settings, request);
+  } */
 }
 
 RESULT start_instance(server_params *server, server_settings *settings) {
