@@ -4,7 +4,7 @@
 | `make clean && make server && sudo ./server` | build |
 | `make clean && make tests && ./run_tests` | buld tests |
 | `sudo ./server [-t \| -u] port` | usage |
-| `sudo make install` | install (run daemon udp at 8080) |
+| `sudo make install` | install (run daemon tcp at 8080) |
 | `sudo make remove` | remove |
 
 ### Server commands

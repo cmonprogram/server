@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/usr/local/bin/
-ExecStart=/usr/local/bin/server -u 8080
+ExecStart=/usr/local/bin/server -t 8080
 Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
