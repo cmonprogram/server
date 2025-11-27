@@ -2,20 +2,20 @@
 #include "main.h"
 #include <stdio.h>
 #include <string.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 RESULT stage_init(server_params *server, server_settings *settings) {
   memset(server, 0, sizeof(*server));
-  /*
-  if (settings->protocol == TCP) {
-    PRINT_ERROR("TCP not supported yet");
-    return RESULT_EXIT;
-  }
-  */
   server->server_addr.sin_family = AF_INET;
   server->server_addr.sin_addr.s_addr = INADDR_ANY;
   server->server_addr.sin_port = htons(settings->port_no);
+  server->epollfd = epoll_create1(0);
+  if (server->epollfd == -1) {
+    perror("[epoll error]");
+    return RESULT_FAIL;
+  }
   return RESULT_SUCESS;
 }
 
@@ -48,11 +48,18 @@ RESULT stage_close(server_params *server, server_settings *settings) {
 RESULT stage_execute(server_params *server, server_settings *settings) {
   PRINT("[%s server started] prort:%d\n",
         settings->protocol == TCP ? "TCP" : "UDP", settings->port_no);
+
   if (settings->protocol == TCP) {
     if ((listen(server->sock_fd, 5)) != 0) {
       printf("Listen failed...\n");
       return RESULT_FAIL;
     }
+  }
+  server->epoll_ev_listen.data.fd = server->sock_fd;
+  server->epoll_ev_listen.events = EPOLLIN;
+  if (epoll_ctl(server->epollfd, EPOLL_CTL_ADD, server->sock_fd,
+                &server->epoll_ev_listen) == -1) {
+    perror("[epoll_ctl error]");
   }
 
   while (1) {
@@ -84,18 +91,25 @@ RESULT get_msg(server_params *server, server_settings *settings,
                request_instance *request) {
   if (settings->protocol == UDP) {
     request->in_buffer_len =
-        recvfrom(server->sock_fd, (char *)request->in_buffer,
+        recvfrom(request->epoll_ev_fd, (char *)request->in_buffer,
                  sizeof(request->in_buffer) - 1, MSG_WAITALL, // MSG_ZEROCOPY
                  (struct sockaddr *)&request->client_addr, &request->addr_len);
     if (request->in_buffer_len < 0) {
-      PRINT_ERROR("[recvfrom failed]");
+      PRINT_ERROR("recvfrom failed");
       return RESULT_FAIL;
     } else if (request->in_buffer_len == 0) {
       PRINT_ERROR("read failed, connection closed");
+            return RESULT_FAIL;
     }
     request->in_buffer[request->in_buffer_len++] = '\0';
     return RESULT_SUCESS;
   } else if (settings->protocol == TCP) {
+    if ((request->client_fd =
+             accept( request->epoll_ev_fd, (struct sockaddr *)&request->client_addr,
+                    (socklen_t *)&request->addr_len)) < 0) {
+      perror("[accept failed]");
+      return RESULT_FAIL;
+    }
     request->in_buffer_len = read(request->client_fd, request->in_buffer,
                                   sizeof(request->in_buffer) - 1);
     if (request->in_buffer_len < 0) {
@@ -103,6 +117,7 @@ RESULT get_msg(server_params *server, server_settings *settings,
       return RESULT_FAIL;
     } else if (request->in_buffer_len == 0) {
       PRINT_ERROR("read failed, connection closed");
+      return RESULT_FAIL;
     }
     request->in_buffer[request->in_buffer_len++] = '\0';
     return RESULT_SUCESS;
@@ -113,7 +128,7 @@ RESULT get_msg(server_params *server, server_settings *settings,
 RESULT send_msg(server_params *server, server_settings *settings,
                 request_instance *request) {
   if (settings->protocol == UDP) {
-    if (sendto(server->sock_fd, (char *)request->out_buffer,
+    if (sendto(request->epoll_ev_fd, (char *)request->out_buffer,
                request->out_buffer_len, 0,
                (struct sockaddr *)&request->client_addr, request->addr_len)) {
       return RESULT_SUCESS;

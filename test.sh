@@ -23,10 +23,17 @@ function run_sequential(){
     echo -n "test_end" | nc -w 1 -t 127.0.0.1 $PORT ; 
 }
 
+function run_time(){
+    echo "time test";
+    for i in {1..1000}; do echo -n "time" | nc -w 0 -t 127.0.0.1 $PORT; done; 
+}
+
 if [[ "$2" == "-s" ]]; then 
     run_sequential
 elif [[ "$2" == "-p" ]]; then 
     run_paralell
+elif [[ "$2" == "-t" ]]; then 
+    run_time
 else 
     run_paralell
     run_sequential

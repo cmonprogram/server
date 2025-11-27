@@ -40,7 +40,8 @@ RESULT html_section(server_params *server, server_settings *settings,
                     request_instance *request) {
   char HTML_HEADER[] = "GET / HTTP";
   if (request->in_buffer_len > sizeof(HTML_HEADER)) {
-    if (strncmp(HTML_HEADER, request->in_buffer, sizeof(HTML_HEADER))) {
+    if (strncmp(HTML_HEADER, request->in_buffer, sizeof(HTML_HEADER) - 1) ==
+        0) {
       PRINT("[get html]\n");
       return cmd_html(server, settings, request);
     }
@@ -87,38 +88,43 @@ RESULT command_section(server_params *server, server_settings *settings,
 }
 
 RESULT start_instance(server_params *server, server_settings *settings) {
-  request_instance request;
-  request.addr_len = sizeof(request.client_addr);
-  if (settings->protocol == TCP) {
-    if ((request.client_fd =
-             accept(server->sock_fd, (struct sockaddr *)&request.client_addr,
-                    (socklen_t *)&request.addr_len)) < 0) {
-      perror("accept failed");
+  int epoll_result = epoll_wait(server->epollfd, server->events, MAX_EVENTS, 0);
+  if (epoll_result == -1) {
+    perror("[epoll_wait error]");
+    return RESULT_FAIL;
+  } else if (epoll_result == 0) {
+    return RESULT_FAIL;
+  }
+
+  for (int i = 0; i < epoll_result; ++i) {
+    // printf("Event on fd %d; events: %u\n", server->events[i].data.fd,
+    // server->events[i].events);
+    request_instance request;
+    request.addr_len = sizeof(request.client_addr);
+    request.epoll_ev_fd = server->events[i].data.fd;
+
+    if (get_msg(server, settings, &request)) {
+      if (test_section(server, settings, &request)) {
+        CLOSE_TCP;
+        continue;
+      }
+
+      if (html_section(server, settings, &request)) {
+        CLOSE_TCP;
+        continue;
+      }
+
+      if (!parce_section(server, settings, &request)) {
+        CLOSE_TCP;
+        continue;
+      }
+
+      RESULT res = command_section(server, settings, &request);
       CLOSE_TCP;
-      return RESULT_FAIL;
+      if (res == RESULT_EXIT)
+        return res;
     }
   }
-  if (get_msg(server, settings, &request)) {
 
-    if (test_section(server, settings, &request)) {
-      CLOSE_TCP;
-      return RESULT_SUCESS;
-    }
-
-    if (html_section(server, settings, &request)) {
-      CLOSE_TCP;
-      return RESULT_SUCESS;
-    }
-
-    if (!parce_section(server, settings, &request)) {
-      CLOSE_TCP;
-      return RESULT_FAIL;
-    }
-
-    RESULT res = command_section(server, settings, &request);
-    CLOSE_TCP;
-    return res;
-  }
-  CLOSE_TCP;
   return RESULT_FAIL;
 }

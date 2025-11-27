@@ -62,10 +62,8 @@ RESULT cmd_test_end(server_params *server, server_settings *settings,
 RESULT cmd_html(server_params *server, server_settings *settings,
                 request_instance *request) {
   char response[] =
-      // Заголовок.
       "HTTP/1.1 200 OK \n Content-Type: text/xml;charset=utf-8 \n "
       "Content-Length: 256 \n\n"
-      // Тело HTML страницы.
       "<!doctype html>"
       "<html lang=\"en\">"
       "<head>"

@@ -2,9 +2,11 @@
 #define MAIN_H
 
 #include <netinet/in.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 
 #define PROGRAMM_NAME "server"
+#define MAX_EVENTS 10
 #define MAX_ARGS 10
 #define MSG_BUFFER_SIZE 1000
 
@@ -24,6 +26,10 @@ typedef struct {
   int server_test_packages_number_end;
   long long server_test_start_milliseconds;
   long long server_test_end_milliseconds;
+  // epoll support
+  int epollfd;
+  struct epoll_event events[MAX_EVENTS];
+  struct epoll_event epoll_ev_listen;
 } server_params;
 
 typedef struct {
@@ -35,7 +41,8 @@ typedef struct {
   int client_fd;
   struct sockaddr_in client_addr;
   socklen_t addr_len;
-
+  // epoll support
+  int epoll_ev_fd;
 } request_instance;
 
 #define KGRN "\x1B[32m"
