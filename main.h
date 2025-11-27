@@ -10,8 +10,8 @@
 #define MAX_ARGS 10
 #define MSG_BUFFER_SIZE 1000
 
-typedef enum { TCP, UDP } PROTOCOL;
-typedef enum { RESULT_FAIL, RESULT_SUCESS, RESULT_EXIT } RESULT;
+typedef enum { TCP, UDP_SERVER, TCP_SERVER } PROTOCOL;
+typedef enum { RESULT_FAIL, RESULT_SUCESS, RESULT_SKIP, RESULT_EXIT } RESULT;
 
 typedef struct {
   PROTOCOL protocol;
@@ -33,17 +33,20 @@ typedef struct {
 } server_params;
 
 typedef struct {
+  //data
   char in_buffer[MSG_BUFFER_SIZE];
   int in_buffer_len;
   char out_buffer[MSG_BUFFER_SIZE];
   int out_buffer_len;
   char *args[MAX_ARGS];
+  //socket
+  PROTOCOL socket_type;
   int client_fd;
   struct sockaddr_in client_addr;
   socklen_t addr_len;
   // epoll support
-  int epoll_ev_fd;
-} request_instance;
+  int epollfd;
+} epoll_handler;
 
 #define KGRN "\x1B[32m"
 #define KRED "\x1B[31m"

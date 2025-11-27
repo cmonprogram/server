@@ -22,10 +22,10 @@ void print_help() {
 
 int parce_protocol(server_settings *settings, char *protocol) {
   if (strcmp(protocol, "-t") == 0) {
-    settings->protocol = TCP;
+    settings->protocol = TCP_SERVER;
     return 1;
   } else if (strcmp(protocol, "-u") == 0) {
-    settings->protocol = UDP;
+    settings->protocol = UDP_SERVER;
     return 1;
   } else {
     return 0;

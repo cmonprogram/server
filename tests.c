@@ -15,7 +15,7 @@
 int udp_load_test_run_server() {
   server_settings settings;
   settings.port_no = 8080;
-  settings.protocol = UDP;
+  settings.protocol = UDP_SERVER;
   return server_run(&settings);
 }
 
@@ -38,7 +38,6 @@ int udp_load_test_run_client() {
 int udp_load_test_run_client() {
   char in_buffer[100];
   char out_buffer[100];
-  char *message = "Hello Server";
   int sockfd, n;
   struct sockaddr_in servaddr;
 
@@ -57,11 +56,10 @@ int udp_load_test_run_client() {
     exit(0);
   }
 
-  for (int i = 0; i < 1000000; ++i) {
-    sprintf(out_buffer, "Hello web server %d", i);
+  for (int i = 0; i < 1001; ++i) {
+    sprintf(out_buffer, "time");
     sendto(sockfd, out_buffer, sizeof(out_buffer), 0, (struct sockaddr *)NULL,
            sizeof(servaddr));
-    // sleep(1);
   }
 
   /*
