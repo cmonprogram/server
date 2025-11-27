@@ -22,8 +22,10 @@
 ```
 1. [ok] simple socket server on C
             1. [ok] console input
-            2. [ok] udp server start
-            3. [ok] tcp server start
+            2. [ok] udp support
+            3. [ok] tcp support
+            4. [ok] command response
+            5. [ok] http response
 2. [ok] daemon
 3. [ok] load test (to see improvement after epoll)
 4. buffer work (epoll?)
