@@ -1,4 +1,5 @@
 
+#include "instance.h"
 #include "arg.h"
 #include "cmd.h"
 #include "main.h"

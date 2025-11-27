@@ -1,5 +1,6 @@
 #include "main.h"
 #include "socket.h"
+#include "server.h"
 #include <stdio.h>
 #include <sys/epoll.h>
 #include <sys/time.h>
