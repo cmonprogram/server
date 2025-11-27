@@ -5,9 +5,7 @@
 #include <sys/epoll.h>
 #include <sys/time.h>
 #include <unistd.h>
-
 #include <sys/epoll.h>
-
 
 RESULT cmd_exit(server_params *server, server_settings *settings,
                 struct epoll_event *event) {

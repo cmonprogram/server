@@ -1,6 +1,7 @@
 #ifndef INSTANCE_H
 #define INSTANCE_H
 #include "main.h"
+
 RESULT test_section(server_params *server, server_settings *settings,
                     struct epoll_event *event);
 RESULT html_section(server_params *server, server_settings *settings,

@@ -8,7 +8,6 @@ RESULT stage_bind(server_params *server, server_settings *settings);
 RESULT stage_close(server_params *server, server_settings *settings);
 RESULT stage_execute(server_params *server, server_settings *settings);
 RESULT server_run(server_settings *settings);
-
 #endif
 /*
 RESULT test_start(){}
