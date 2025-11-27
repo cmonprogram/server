@@ -4,7 +4,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-
 #define PROGRAMM_NAME "server"
 #define MAX_ARGS 10
 #define MSG_BUFFER_SIZE 1000
@@ -32,7 +31,7 @@ typedef struct {
   int in_buffer_len;
   char out_buffer[MSG_BUFFER_SIZE];
   int out_buffer_len;
-  char* args[MAX_ARGS];
+  char *args[MAX_ARGS];
   int client_fd;
   struct sockaddr_in client_addr;
   socklen_t addr_len;
@@ -53,10 +52,10 @@ typedef struct {
 
 #define PRINT(...) printf(__VA_ARGS__)
 #define PRINT_NORMAL(status, data) PRINT("[%s] %s\n", status, data)
-#define PRINT_GREEN(status, data)PRINT("[%s%s%s] %s\n", KGRN, status, KNRM, data)
+#define PRINT_GREEN(status, data)                                              \
+  PRINT("[%s%s%s] %s\n", KGRN, status, KNRM, data)
 #define PRINT_RED(status, data) PRINT("[%s%s%s] %s\n", KRED, status, KNRM, data)
-#define PRINT_ERROR(data)  PRINT_RED("err", data)
-
+#define PRINT_ERROR(data) PRINT_RED("err", data)
 
 #define EXECUTE_STAGE(stage_name, stage_func, ...)                             \
   {                                                                            \

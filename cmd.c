@@ -1,8 +1,8 @@
+#include "main.h"
+#include "socket.h"
 #include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include "main.h"
-#include "socket.h"
 
 RESULT cmd_exit(server_params *server, server_settings *settings,
                 request_instance *request) {
@@ -38,7 +38,8 @@ RESULT cmd_test_start(server_params *server, server_settings *settings,
   server->server_test_start_milliseconds =
       (long long)tv.tv_sec * 1000LL + (long long)tv.tv_usec / 1000LL;
   server->server_in_test = 1;
-  return send_msg(server, settings, request);
+  // return send_msg(server, settings, request);
+  return RESULT_SUCESS;
 }
 
 // edit in server should be thread safe
@@ -55,5 +56,27 @@ RESULT cmd_test_end(server_params *server, server_settings *settings,
               (int)(server->server_test_end_milliseconds -
                     server->server_test_start_milliseconds));
   PRINT("%s", request->out_buffer);
+  return send_msg(server, settings, request);
+}
+
+RESULT cmd_html(server_params *server, server_settings *settings,
+                request_instance *request) {
+  char response[] =
+      // Заголовок.
+      "HTTP/1.1 200 OK \n Content-Type: text/xml;charset=utf-8 \n "
+      "Content-Length: 256 \n\n"
+      // Тело HTML страницы.
+      "<!doctype html>"
+      "<html lang=\"en\">"
+      "<head>"
+      "<meta charset=\"UTF-8\">"
+      "<title>Server</title>"
+      "</head>"
+      "<body><a "
+      "href=\"https://github.com/cmonprogram/server\">https://github.com/"
+      "cmonprogram/server</a>"
+      "</body>"
+      "</html>\n";
+  request->out_buffer_len = sprintf(request->out_buffer, "%s", response);
   return send_msg(server, settings, request);
 }

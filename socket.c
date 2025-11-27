@@ -90,6 +90,8 @@ RESULT get_msg(server_params *server, server_settings *settings,
     if (request->in_buffer_len < 0) {
       PRINT_ERROR("[recvfrom failed]");
       return RESULT_FAIL;
+    } else if (request->in_buffer_len == 0) {
+      PRINT_ERROR("read failed, connection closed");
     }
     request->in_buffer[request->in_buffer_len++] = '\0';
     return RESULT_SUCESS;
@@ -99,6 +101,8 @@ RESULT get_msg(server_params *server, server_settings *settings,
     if (request->in_buffer_len < 0) {
       perror("[read failed]");
       return RESULT_FAIL;
+    } else if (request->in_buffer_len == 0) {
+      PRINT_ERROR("read failed, connection closed");
     }
     request->in_buffer[request->in_buffer_len++] = '\0';
     return RESULT_SUCESS;

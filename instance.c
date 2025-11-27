@@ -15,7 +15,7 @@
 
 RESULT test_section(server_params *server, server_settings *settings,
                     request_instance *request) {
-  //need better alternative for end
+  // need better alternative for end
   if (server->server_in_test && strcmp(request->in_buffer, "test_end") == 0) {
     cmd_test_end(server, settings, request);
     return RESULT_SUCESS;
@@ -32,6 +32,18 @@ RESULT test_section(server_params *server, server_settings *settings,
   } else if (server->server_in_test) {
     cmd_test_end(server, settings, request);
     return RESULT_SUCESS;
+  }
+  return RESULT_FAIL;
+}
+
+RESULT html_section(server_params *server, server_settings *settings,
+                    request_instance *request) {
+  char HTML_HEADER[] = "GET / HTTP";
+  if (request->in_buffer_len > sizeof(HTML_HEADER)) {
+    if (strncmp(HTML_HEADER, request->in_buffer, sizeof(HTML_HEADER))) {
+      PRINT("[get html]\n");
+      return cmd_html(server, settings, request);
+    }
   }
   return RESULT_FAIL;
 }
@@ -89,6 +101,11 @@ RESULT start_instance(server_params *server, server_settings *settings) {
   if (get_msg(server, settings, &request)) {
 
     if (test_section(server, settings, &request)) {
+      CLOSE_TCP;
+      return RESULT_SUCESS;
+    }
+
+    if (html_section(server, settings, &request)) {
       CLOSE_TCP;
       return RESULT_SUCESS;
     }

@@ -74,11 +74,10 @@ int udp_load_test_run_client() {
   sprintf(out_buffer, "exit");
   sendto(sockfd, out_buffer, sizeof(out_buffer), 0, (struct sockaddr *)NULL,
          sizeof(servaddr));
-  
 
   // waiting for response
-  // recvfrom(sockfd, in_buffer, sizeof(in_buffer), 0, (struct sockaddr*)NULL, NULL);
-  // puts(in_buffer);
+  // recvfrom(sockfd, in_buffer, sizeof(in_buffer), 0, (struct sockaddr*)NULL,
+  // NULL); puts(in_buffer);
 
   // close the descriptor
   close(sockfd);
