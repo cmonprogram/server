@@ -19,6 +19,7 @@ typedef struct {
 } server_settings;
 
 typedef struct {
+  server_settings settings;
   int sock_fd;
   struct sockaddr_in server_addr;
   int server_in_test;
@@ -33,13 +34,13 @@ typedef struct {
 } server_params;
 
 typedef struct {
-  //data
+  // data
   char in_buffer[MSG_BUFFER_SIZE];
   int in_buffer_len;
   char out_buffer[MSG_BUFFER_SIZE];
   int out_buffer_len;
   char *args[MAX_ARGS];
-  //socket
+  // socket
   PROTOCOL socket_type;
   int client_fd;
   struct sockaddr_in client_addr;

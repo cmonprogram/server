@@ -1,25 +1,22 @@
 #include "main.h"
-#include "socket.h"
 #include "server.h"
+#include "socket.h"
 #include <stdio.h>
 #include <sys/epoll.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include <sys/epoll.h>
 
-RESULT cmd_exit(server_params *server, server_settings *settings,
-                struct epoll_event *event) {
-   epoll_handler *request = (epoll_handler *)event->data.ptr;
-  if (stage_close(server, settings)) {
+RESULT cmd_exit(server_params *server, struct epoll_event *event) {
+  epoll_handler *request = (epoll_handler *)event->data.ptr;
+  if (stage_close(server)) {
     return RESULT_EXIT;
   } else {
     return RESULT_FAIL;
   }
 }
 
-RESULT cmd_time(server_params *server, server_settings *settings,
-                struct epoll_event *event) {
-   epoll_handler *request = (epoll_handler *)event->data.ptr;
+RESULT cmd_time(server_params *server, struct epoll_event *event) {
+  epoll_handler *request = (epoll_handler *)event->data.ptr;
   struct timeval tv;
   gettimeofday(&tv, NULL);
   long long milliseconds =
@@ -30,9 +27,8 @@ RESULT cmd_time(server_params *server, server_settings *settings,
 }
 
 // edit in server should be thread safe
-RESULT cmd_test_start(server_params *server, server_settings *settings,
-                struct epoll_event *event) {
-   epoll_handler *request = (epoll_handler *)event->data.ptr;
+RESULT cmd_test_start(server_params *server, struct epoll_event *event) {
+  epoll_handler *request = (epoll_handler *)event->data.ptr;
   server->server_test_packages_number = 0;
   server->server_test_packages_number_end = 1000;
   request->out_buffer_len =
@@ -44,14 +40,13 @@ RESULT cmd_test_start(server_params *server, server_settings *settings,
   server->server_test_start_milliseconds =
       (long long)tv.tv_sec * 1000LL + (long long)tv.tv_usec / 1000LL;
   server->server_in_test = 1;
-  // return send_msg(server, settings, request);
+  // return send_msg(server, request);
   return RESULT_SUCESS;
 }
 
 // edit in server should be thread safe
-RESULT cmd_test_end(server_params *server, server_settings *settings,
-                struct epoll_event *event) {
-   epoll_handler *request = (epoll_handler *)event->data.ptr;
+RESULT cmd_test_end(server_params *server, struct epoll_event *event) {
+  epoll_handler *request = (epoll_handler *)event->data.ptr;
   struct timeval tv;
   gettimeofday(&tv, NULL);
   server->server_test_end_milliseconds =
@@ -66,9 +61,8 @@ RESULT cmd_test_end(server_params *server, server_settings *settings,
   return epoll_send_msg(event);
 }
 
-RESULT cmd_html(server_params *server, server_settings *settings,
-                struct epoll_event *event) {
-   epoll_handler *request = (epoll_handler *)event->data.ptr;
+RESULT cmd_html(server_params *server, struct epoll_event *event) {
+  epoll_handler *request = (epoll_handler *)event->data.ptr;
   char response[] =
       "HTTP/1.1 200 OK \n Content-Type: text/xml;charset=utf-8 \n "
       "Content-Length: 256 \n\n"

@@ -1,5 +1,6 @@
 #include "arg.h"
 #include "main.h"
+#include "server.h"
 #include "socket.h"
 #include <assert.h>
 #include <pthread.h>

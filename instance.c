@@ -9,17 +9,16 @@
 #include <unistd.h>
 
 #define CLOSE                                                                  \
-  if (settings->protocol == TCP_SERVER)                                        \
+  if (server->settings.protocol == TCP_SERVER)                                 \
     close(request.client_fd);
 // #define return if (settings->protocol == TCP_SERVER)
 // close(request.client_fd); return
 
-RESULT test_section(server_params *server, server_settings *settings,
-                    struct epoll_event *event) {
+RESULT test_section(server_params *server, struct epoll_event *event) {
   epoll_handler *request = (epoll_handler *)event->data.ptr;
   // need better alternative for end
   if (server->server_in_test && strcmp(request->in_buffer, "test_end") == 0) {
-    cmd_test_end(server, settings, event);
+    cmd_test_end(server, event);
     return RESULT_SUCESS;
   } else if (server->server_in_test &&
              server->server_test_packages_number <
@@ -28,32 +27,30 @@ RESULT test_section(server_params *server, server_settings *settings,
           server->server_test_packages_number_end, request->in_buffer);
     if (++server->server_test_packages_number ==
         server->server_test_packages_number_end) {
-      cmd_test_end(server, settings, event);
+      cmd_test_end(server, event);
     }
     return RESULT_SUCESS;
   } else if (server->server_in_test) {
-    cmd_test_end(server, settings, event);
+    cmd_test_end(server, event);
     return RESULT_SUCESS;
   }
   return RESULT_FAIL;
 }
 
-RESULT html_section(server_params *server, server_settings *settings,
-                    struct epoll_event *event) {
+RESULT html_section(server_params *server, struct epoll_event *event) {
   epoll_handler *request = (epoll_handler *)event->data.ptr;
   char HTML_HEADER[] = "GET / HTTP";
   if (request->in_buffer_len > sizeof(HTML_HEADER) - 1) {
     if (strncmp(HTML_HEADER, request->in_buffer, sizeof(HTML_HEADER) - 1) ==
         0) {
       PRINT("[get html]\n");
-      return cmd_html(server, settings, event);
+      return cmd_html(server, event);
     }
   }
   return RESULT_FAIL;
 }
 
-RESULT parce_section(server_params *server, server_settings *settings,
-                     struct epoll_event *event) {
+RESULT parce_section(server_params *server, struct epoll_event *event) {
   epoll_handler *request = (epoll_handler *)event->data.ptr;
   PRINT("[get] %s\n", request->in_buffer);
   int len =
@@ -73,15 +70,14 @@ RESULT parce_section(server_params *server, server_settings *settings,
     return RESULT_FAIL;
   }
 }
-RESULT command_section(server_params *server, server_settings *settings,
-                       struct epoll_event *event) {
+RESULT command_section(server_params *server, struct epoll_event *event) {
   epoll_handler *request = (epoll_handler *)event->data.ptr;
   if (strcmp(request->args[0], "exit") == 0) {
-    return cmd_exit(server, settings, event);
+    return cmd_exit(server, event);
   } else if (strcmp(request->args[0], "time") == 0) {
-    return cmd_time(server, settings, event);
+    return cmd_time(server, event);
   } else if (strcmp(request->args[0], "test_start") == 0) {
-    return cmd_test_start(server, settings, event);
+    return cmd_test_start(server, event);
   } else {
     PRINT_ERROR("wrong command");
     return RESULT_FAIL;
@@ -92,7 +88,7 @@ RESULT command_section(server_params *server, server_settings *settings,
   } */
 }
 
-RESULT start_instance(server_params *server, server_settings *settings) {
+RESULT start_instance(server_params *server) {
   int epoll_result =
       epoll_wait(server->epollfd, server->events, MAX_EVENTS, -1);
   if (epoll_result == -1) {
@@ -108,19 +104,19 @@ RESULT start_instance(server_params *server, server_settings *settings) {
     // server->events[i].events);
     RESULT msg_res = epoll_get_msg(&server->events[i]);
     if (msg_res == RESULT_SUCESS) {
-      if (test_section(server, settings, &server->events[i])) {
+      if (test_section(server, &server->events[i])) {
         delete_from_epoll(&server->events[i]);
         continue;
       }
-      if (html_section(server, settings, &server->events[i])) {
+      if (html_section(server, &server->events[i])) {
         delete_from_epoll(&server->events[i]);
         continue;
       }
-      if (!parce_section(server, settings, &server->events[i])) {
+      if (!parce_section(server, &server->events[i])) {
         delete_from_epoll(&server->events[i]);
         continue;
       }
-      RESULT cmd_res = command_section(server, settings, &server->events[i]);
+      RESULT cmd_res = command_section(server, &server->events[i]);
       if (cmd_res == RESULT_EXIT) {
         delete_from_epoll(&server->events[i]);
         return cmd_res;
@@ -128,7 +124,7 @@ RESULT start_instance(server_params *server, server_settings *settings) {
     } else if (msg_res == RESULT_SKIP) {
       continue;
     } else if (msg_res == RESULT_FAIL && request->socket_type == TCP) {
-      //PRINT_ERROR("read fail");
+      // PRINT_ERROR("read fail");
       delete_from_epoll(&server->events[i]);
       continue;
     }
