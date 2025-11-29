@@ -43,6 +43,8 @@ struct server_params {
   long long server_test_end_milliseconds;
   struct thread_context threads[MAX_THREADS];
   int epollfd;
+  struct thread_context tcp_thread;
+  int tcp_epollfd;
 };
 typedef struct server_params server_params;
 typedef struct thread_context thread_context;

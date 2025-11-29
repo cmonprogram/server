@@ -20,16 +20,15 @@ RESULT add_to_epoll(int epollfd, int sockfd, PROTOCOL type) {
   ev.events = EPOLLIN; // | EPOLLET;  //EPOLLONESHOT;
   ev.data.fd = sockfd;
   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
-    perror("[epoll_ctl error]");
+    perror("[epoll_ctl add error]");
     return RESULT_FAIL;
   }
-
   return RESULT_SUCESS;
 }
 
 RESULT delete_from_epoll(int epollfd, int sockfd) {
   if (epoll_ctl(epollfd, EPOLL_CTL_DEL, sockfd, NULL) == -1) {
-    perror("[epoll_ctl error]");
+    perror("[epoll_ctl del error]");
     return RESULT_FAIL;
   }
   close(sockfd);
@@ -62,16 +61,7 @@ RESULT epoll_get_msg(epoll_handler *handler) {
       return RESULT_SUCESS;
     }
     return RESULT_FAIL;
-  } else if (handler->socket_type == TCP_SERVER) {
-    int new_fd;
-    if ((new_fd = accept(handler->client_fd,
-                         (struct sockaddr *)&handler->client_addr,
-                         (socklen_t *)&handler->addr_len)) < 0) {
-      perror("[accept failed]");
-      return RESULT_FAIL;
-    }
-    add_to_epoll(handler->server->epollfd, new_fd, TCP);
-  }
+  } 
   return RESULT_FAIL;
 }
 
