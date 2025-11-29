@@ -28,7 +28,7 @@ RESULT add_to_epoll(int epollfd, int sockfd, PROTOCOL type) {
 
 RESULT delete_from_epoll(int epollfd, int sockfd) {
   if (epoll_ctl(epollfd, EPOLL_CTL_DEL, sockfd, NULL) == -1) {
-    perror("[epoll_ctl del error]");
+    //perror("[epoll_ctl del error]");
     return RESULT_FAIL;
   }
   close(sockfd);
