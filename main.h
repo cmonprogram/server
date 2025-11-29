@@ -30,7 +30,6 @@ typedef struct {
   // epoll support
   int epollfd;
   struct epoll_event events[MAX_EVENTS];
-  struct epoll_event epoll_ev_listen;
 } server_params;
 
 typedef struct {
