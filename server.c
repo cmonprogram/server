@@ -46,7 +46,7 @@ RESULT stage_bind(server_params *server) {
     perror("[bind error]");
     return 0;
   }
-  if (add_to_epoll(server, server->sock_fd, server->settings.protocol) ==
+  if (add_to_epoll(server->epollfd, server->sock_fd, server->settings.protocol) ==
       RESULT_FAIL)
     return RESULT_FAIL;
 

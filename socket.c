@@ -8,44 +8,36 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-RESULT add_to_epoll(server_params *server, int sockfd, PROTOCOL type) {
-  /* 
+RESULT add_to_epoll(int epollfd, int sockfd, PROTOCOL type) {
+  /*
     if (fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL, 0) | O_NONBLOCK) == -1) {
       perror("[setnonblocking]");
       return RESULT_FAIL;
     }
  */
-  epoll_handler *handler = calloc(1, sizeof(epoll_handler));
-  handler->server = server;
-  handler->socket_type = type;
-  handler->addr_len = sizeof(handler->client_addr);
-  handler->client_fd = sockfd;
-
   struct epoll_event ev;
   ev.data.fd = sockfd;
   ev.events = EPOLLIN; // | EPOLLET;  //EPOLLONESHOT;
-  ev.data.ptr = handler;
-  if (epoll_ctl(server->epollfd, EPOLL_CTL_ADD, handler->client_fd, &ev) ==
-      -1) {
+  ev.data.fd = sockfd;
+  if (epoll_ctl(epollfd, EPOLL_CTL_ADD, sockfd, &ev) == -1) {
     perror("[epoll_ctl error]");
-    free(handler);
     return RESULT_FAIL;
   }
 
   return RESULT_SUCESS;
 }
 
-RESULT delete_from_epoll(struct epoll_event *event) {
-  epoll_handler *request = (epoll_handler *)event->data.ptr;
-  epoll_ctl(request->server->epollfd, EPOLL_CTL_DEL, request->client_fd, NULL);
-  close(request->client_fd);
-  free(request);
+RESULT delete_from_epoll(int epollfd, int sockfd) {
+  if (epoll_ctl(epollfd, EPOLL_CTL_DEL, sockfd, NULL) == -1) {
+    perror("[epoll_ctl error]");
+    return RESULT_FAIL;
+  }
+  close(sockfd);
   return RESULT_SUCESS;
 }
 
 // need msg limit error
-RESULT epoll_get_msg(struct epoll_event *event) {
-  epoll_handler *handler = (epoll_handler *)event->data.ptr;
+RESULT epoll_get_msg(epoll_handler *handler) {
   if (handler->socket_type == UDP_SERVER) {
     handler->in_buffer_len =
         recvfrom(handler->client_fd, (char *)handler->in_buffer,
@@ -78,13 +70,12 @@ RESULT epoll_get_msg(struct epoll_event *event) {
       perror("[accept failed]");
       return RESULT_FAIL;
     }
-    add_to_epoll(handler->server, new_fd, TCP);
+    add_to_epoll(handler->server->epollfd, new_fd, TCP);
   }
   return RESULT_FAIL;
 }
 
-RESULT epoll_send_msg(struct epoll_event *event) {
-  epoll_handler *handler = (epoll_handler *)event->data.ptr;
+RESULT epoll_send_msg(epoll_handler *handler) {
   if (handler->socket_type == UDP_SERVER) {
     if (sendto(handler->client_fd, (char *)handler->out_buffer,
                handler->out_buffer_len, 0,
