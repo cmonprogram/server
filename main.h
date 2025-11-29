@@ -24,6 +24,7 @@ struct thread_context;
 struct server_params;
 
 struct thread_context {
+  int thread_id;
   struct server_params* server;
   pthread_t thread;
   int epoll_result;
@@ -41,6 +42,7 @@ struct server_params {
   long long server_test_start_milliseconds;
   long long server_test_end_milliseconds;
   struct thread_context threads[MAX_THREADS];
+  int epollfd;
 };
 typedef struct server_params server_params;
 typedef struct thread_context thread_context;

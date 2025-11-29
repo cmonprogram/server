@@ -13,13 +13,14 @@ RESULT stage_init(server_params *server, server_settings *settings) {
   server->server_addr.sin_family = AF_INET;
   server->server_addr.sin_addr.s_addr = INADDR_ANY;
   server->server_addr.sin_port = htons(settings->port_no);
-  for (int i = 0; i < MAX_THREADS; ++i) {
+  server->epollfd = epoll_create1(0);
+  if ( server->epollfd  == -1) {
+    perror("[epoll error]");
+    return RESULT_FAIL;
+  }
+   for (int i = 0; i < MAX_THREADS; ++i) {
     server->threads[i].server = server;
-    server->threads[i].epollfd = epoll_create1(0);
-    if (server->threads[i].epollfd == -1) {
-      perror("[epoll error]");
-      return RESULT_FAIL;
-    }
+    server->threads[i].epollfd = server->epollfd;
   }
 
   return RESULT_SUCESS;
@@ -59,7 +60,7 @@ RESULT stage_close(server_params *server) {
 
 void *start_thread(void *arg) {
   thread_context *context = (thread_context *)arg;
-  PRINT("[%s%s%s] %s %d\n", KGRN, "started", KNRM, "thread", context->epollfd);
+  PRINT("[%s%s%s] %s %d\n", KGRN, "started", KNRM, "thread", context->thread_id);
   while (1) {
     RESULT res = start_instance(context);
 
@@ -89,6 +90,7 @@ RESULT stage_execute(server_params *server) {
     }
   }
   for (int i = 0; i < MAX_THREADS; ++i) {
+    server->threads[i].thread_id = i;
     pthread_create(&server->threads[i].thread, NULL, start_thread,
                    (void *)&server->threads[i]);
   }

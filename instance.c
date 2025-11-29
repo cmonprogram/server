@@ -88,19 +88,23 @@ RESULT command_section(server_params *server, struct epoll_event *event) {
   } */
 }
 
-RESULT start_instance( thread_context* context) {
-  context->epoll_result = 
+RESULT start_instance(thread_context *context) {
+  context->epoll_result =
       epoll_wait(context->epollfd, context->events, MAX_EVENTS, -1);
-  if ( context->epoll_result == -1) {
+  if (context->epoll_result == -1) {
     perror("[epoll_wait error]");
     return RESULT_FAIL;
-  } else if ( context->epoll_result == 0) {
+  } else if (context->epoll_result == 0) {
     return RESULT_FAIL;
   }
-    PRINT("[%s] on thread %d\n", "msg", context->epollfd);
+  // for EPOLLONESHOT
+  // epoll_ctl(context->epollfd, EPOLL_CTL_MOD, ,context)
 
-  for (int i = 0; i <  context->epoll_result; ++i) {
+  // PRINT("[%s] on thread %d\n", "msg", context->thread_id);
+
+  for (int i = 0; i < context->epoll_result; ++i) {
     epoll_handler *request = (epoll_handler *)context->events[i].data.ptr;
+    PRINT("[msg] on thread %d - fd %d\n", context->thread_id, request->client_fd);
     // printf("Event on fd %d; events: %u\n", request->client_fd,
     // server->events[i].events);
     RESULT msg_res = epoll_get_msg(&context->events[i]);

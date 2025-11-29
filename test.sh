@@ -28,12 +28,19 @@ function run_time(){
     for i in {1..1000}; do echo -n "time" | nc -w 0 -t 127.0.0.1 $PORT; done; 
 }
 
+function run_timeu(){
+    echo "time test";
+    for i in {1..1000}; do echo -n "time" | nc -w 0 -u 127.0.0.1 $PORT; done; 
+}
+
 if [[ "$2" == "-s" ]]; then 
     run_sequential
 elif [[ "$2" == "-p" ]]; then 
     run_paralell
 elif [[ "$2" == "-t" ]]; then 
     run_time
+elif [[ "$2" == "-tu" ]]; then 
+    run_timeu
 else 
     run_paralell
     run_sequential
