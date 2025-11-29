@@ -88,49 +88,51 @@ RESULT command_section(server_params *server, struct epoll_event *event) {
   } */
 }
 
-RESULT start_instance(server_params *server) {
-  int epoll_result =
-      epoll_wait(server->epollfd, server->events, MAX_EVENTS, -1);
-  if (epoll_result == -1) {
+RESULT start_instance( thread_context* context) {
+  context->epoll_result = 
+      epoll_wait(context->epollfd, context->events, MAX_EVENTS, -1);
+  if ( context->epoll_result == -1) {
     perror("[epoll_wait error]");
     return RESULT_FAIL;
-  } else if (epoll_result == 0) {
+  } else if ( context->epoll_result == 0) {
     return RESULT_FAIL;
   }
+    PRINT("[%s] on thread %d\n", "msg", context->epollfd);
 
-  for (int i = 0; i < epoll_result; ++i) {
-    epoll_handler *request = (epoll_handler *)server->events[i].data.ptr;
+  for (int i = 0; i <  context->epoll_result; ++i) {
+    epoll_handler *request = (epoll_handler *)context->events[i].data.ptr;
     // printf("Event on fd %d; events: %u\n", request->client_fd,
     // server->events[i].events);
-    RESULT msg_res = epoll_get_msg(&server->events[i]);
+    RESULT msg_res = epoll_get_msg(&context->events[i]);
     if (msg_res == RESULT_SUCESS) {
-      if (test_section(server, &server->events[i])) {
-        delete_from_epoll(&server->events[i]);
+      PRINT("[thread %d] %s\n", context->epollfd, request->in_buffer);
+      if (test_section(context->server, &context->events[i])) {
+        delete_from_epoll(&context->events[i]);
         continue;
       }
-      if (html_section(server, &server->events[i])) {
-        delete_from_epoll(&server->events[i]);
+      if (html_section(context->server, &context->events[i])) {
+        delete_from_epoll(&context->events[i]);
         continue;
       }
-      if (!parce_section(server, &server->events[i])) {
-        delete_from_epoll(&server->events[i]);
+      if (!parce_section(context->server, &context->events[i])) {
+        delete_from_epoll(&context->events[i]);
         continue;
       }
-      RESULT cmd_res = command_section(server, &server->events[i]);
+      RESULT cmd_res = command_section(context->server, &context->events[i]);
       if (cmd_res == RESULT_EXIT) {
-        delete_from_epoll(&server->events[i]);
+        delete_from_epoll(&context->events[i]);
         return cmd_res;
       }
     } else if (msg_res == RESULT_SKIP) {
       continue;
     } else if (msg_res == RESULT_FAIL && request->socket_type == TCP) {
       // PRINT_ERROR("read fail");
-      delete_from_epoll(&server->events[i]);
+      delete_from_epoll(&context->events[i]);
       continue;
     }
 
-    if (server->events[i].events & (EPOLLRDHUP | EPOLLHUP)) {
-      delete_from_epoll(&server->events[i]);
+    if (context->events[i].events & (EPOLLRDHUP | EPOLLHUP)) {
+      delete_from_epoll(&context->events[i]);
       continue;
     }
   }

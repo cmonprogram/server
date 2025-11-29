@@ -2,10 +2,12 @@
 #define MAIN_H
 
 #include <netinet/in.h>
+#include <pthread.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 
 #define PROGRAMM_NAME "server"
+#define MAX_THREADS 10
 #define MAX_EVENTS 10
 #define MAX_ARGS 10
 #define MSG_BUFFER_SIZE 1000
@@ -18,7 +20,18 @@ typedef struct {
   int port_no;
 } server_settings;
 
-typedef struct {
+struct thread_context;
+struct server_params;
+
+struct thread_context {
+  struct server_params* server;
+  pthread_t thread;
+  int epoll_result;
+  int epollfd;
+  struct epoll_event events[MAX_EVENTS];
+};
+
+struct server_params {
   server_settings settings;
   int sock_fd;
   struct sockaddr_in server_addr;
@@ -27,12 +40,13 @@ typedef struct {
   int server_test_packages_number_end;
   long long server_test_start_milliseconds;
   long long server_test_end_milliseconds;
-  // epoll support
-  int epollfd;
-  struct epoll_event events[MAX_EVENTS];
-} server_params;
+  struct thread_context threads[MAX_THREADS];
+};
+typedef struct server_params server_params;
+typedef struct thread_context thread_context;
 
 typedef struct {
+  server_params* server;
   // data
   char in_buffer[MSG_BUFFER_SIZE];
   int in_buffer_len;
@@ -45,7 +59,7 @@ typedef struct {
   struct sockaddr_in client_addr;
   socklen_t addr_len;
   // epoll support
-  int epollfd;
+  //int epollfd;
 } epoll_handler;
 
 #define KGRN "\x1B[32m"
