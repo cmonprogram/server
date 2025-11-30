@@ -28,7 +28,7 @@
             5. [ok] http response
 2. [ok] daemon
 3. [ok] load test (to see improvement after epoll)
-4. buffer work (epoll?)
+4. [ok] epoll
 5. run on rockchip
 6. try core-level acceleration (dpdk/AF_XDP/eBPF)
 ```
