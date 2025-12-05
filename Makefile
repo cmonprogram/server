@@ -1,5 +1,5 @@
-CC =  gcc #clang #gcc
-CFLAGS = -pthread -Wall -g -fsanitize=address,undefined  #-fsanitize=leak,thread  -Wextra -pedantic -O2 
+CC ?=  gcc #clang #gcc
+CFLAGS = -pthread -Wall #-g -fsanitize=address,undefined  #-fsanitize=leak,thread  -Wextra -pedantic -O2 
 TARGET = server
 TEST_TARGET = run_tests
 DAEMON_NAME = server_daemon.service 

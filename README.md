@@ -18,6 +18,13 @@
 ### Examples
 [EXAMPLE.md](EXAMPLE.md)
 
+### Add package to buildroot
+```
+1. copy to buildroot/package/server
+2. add source "package/server/Config.in"  to package menu Config.in
+3. run  make menuconfig, make server on
+4. compile and run
+```
 # TODO
 ```
 1. [ok] simple socket server on C
@@ -28,7 +35,7 @@
             5. [ok] http response
 2. [ok] daemon
 3. [ok] load test (to see improvement after epoll)
-4. buffer work (epoll?)
-5. run on rockchip
+4. [ok] buffer work (epoll?)
+5. [ok] run on rockchip
 6. try core-level acceleration (dpdk/AF_XDP/eBPF)
 ```

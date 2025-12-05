@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SERVER
+	bool "server"
+	help
+		This is my server application.
